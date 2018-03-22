@@ -77,7 +77,7 @@ public class TestProject {
 	@Test //check counter can update
 	public void updateReferenceCounter() {
 	parser.setKind(ASTParser.K_COMPILATION_UNIT);
-	String source="public class fake {B b= new B();}";
+	String source=("public class B {} B b= new B();");
 	parser.setSource(source.toCharArray());
 	String type="B";
 	CompilationUnit cu= (CompilationUnit) parser.createAST(null);
