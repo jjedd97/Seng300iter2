@@ -1,5 +1,3 @@
-package typeSearch;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,8 +22,8 @@ public class Main {
 			} catch (IOException ioe) {
 				continue;
 			}
-
-			program.parse(fileToString);
+			System.out.println(getJavaFile.getName());
+			program.parse(fileToString,getJavaFile.getName());
 		}
 
 		System.out.println(type + ". Declarations found: " + declarationsFound + "; references found: " + referencesFound + ".");

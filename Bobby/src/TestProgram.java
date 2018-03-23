@@ -1,5 +1,3 @@
-package typeSearch;
-
 import org.eclipse.jdt.core.dom.*;
 import java.io.*;
 import org.junit.Test;
