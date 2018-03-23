@@ -1,0 +1,1 @@
+ ${string_prompt:Directory:/test/} ${string_prompt:Search target}
