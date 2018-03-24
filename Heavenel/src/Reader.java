@@ -27,7 +27,7 @@ public class Reader {
 				String fileString = new String(Files.readAllBytes(Paths.get(file.toString())));
 				
 				Parser parser = new Parser();
-				parser.parse(fileString);
+				parser.parse(fileString, file);
 			}
 		}
 	}
