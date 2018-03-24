@@ -1,7 +1,9 @@
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class DeclarationCounter {
@@ -36,6 +38,19 @@ public class DeclarationCounter {
 				ITypeBinding bind =node.resolveBinding();
 	
 				String qualifiedName = bind.getQualifiedName();//get node name
+				if (type.equals(qualifiedName)) { //compare
+					count++; //if equal update counter
+				}
+				return true;
+			}
+		});
+		
+		cu.accept(new ASTVisitor() { //create visitor for TypeDeclaration
+			// Count Declarations
+			public boolean visit(MarkerAnnotation node) {
+				ITypeBinding bind =node.resolveTypeBinding();
+				String qualifiedName = bind.getQualifiedName();//get node name
+				System.out.println(bind.getQualifiedName());
 				if (type.equals(qualifiedName)) { //compare
 					count++; //if equal update counter
 				}
