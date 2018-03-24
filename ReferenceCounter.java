@@ -6,6 +6,7 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -132,8 +133,10 @@ private int count=0; //Initialize count to 0
 		}});
 		
 		cu.accept(new ASTVisitor() {public boolean visit(ReturnStatement node) {
-		
-			
+			Expression ex=node.getExpression();
+			ITypeBinding bind= ex.resolveTypeBinding();
+		    String qualifiedName=bind.getQualifiedName();
+			if (type.equals(qualifiedName)) count++;
 			return false; // do not continue 
 		}});
 		
