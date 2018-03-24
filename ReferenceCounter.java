@@ -2,18 +2,28 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+
+import com.sun.glass.ui.CommonDialogs.Type;
 
 public class ReferenceCounter {
 	
@@ -66,6 +76,67 @@ private int count=0; //Initialize count to 0
 				return true;
 			}
 		});
-	}
+		
+		cu.accept(new ASTVisitor() {public boolean visit(MethodDeclaration node) {
+			org.eclipse.jdt.core.dom.Type returntype=node.getReturnType2();
+			String qualifiedName=returntype.toString();
+			if (type.equals(qualifiedName)) { 
+				count++; //if equal update counter 
+			} 
+			
+			for (Object o : node.parameters()) {
+				SingleVariableDeclaration svd = (SingleVariableDeclaration) o;
+				IVariableBinding bind=svd.resolveBinding();
+				if (type.equals(svd.getType().toString())) count++;
+			}
+			
+			return super.visit(node);
+		}});
+		
+		
+		cu.accept(new ASTVisitor() {public boolean visit(MethodInvocation node) {
+			
+			return super.visit(node);
+		}});
+		
+		
 
+		cu.accept(new ASTVisitor() { public boolean visit(ClassInstanceCreation node) {
+			ITypeBinding bind=node.resolveTypeBinding();
+			String qualifiedName = node.getType().toString();
+			if (bind!=null)
+	          {
+	        	qualifiedName= bind.getQualifiedName();
+	          }
+			if (type.equals(qualifiedName)) count++;	
+			return false; // do not continue 
+	}});
+		
+		
+
+		
+		
+		cu.accept(new ASTVisitor() {public boolean visit(EnumDeclaration node) {
+			String name = node.getName().getFullyQualifiedName();				
+			ITypeBinding e = node.resolveBinding();
+			if (e.getInterfaces() != null) {
+				ITypeBinding[] interfaces = e.getInterfaces();
+				for (ITypeBinding i : interfaces) {
+					if (type.equals(i.getQualifiedName())) count++;
+				}
+			}
+			
+
+			
+			return false; // do not continue 
+		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(ReturnStatement node) {
+		
+			
+			return false; // do not continue 
+		}});
+		
+	
+	}
 }
