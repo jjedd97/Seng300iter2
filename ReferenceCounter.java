@@ -78,7 +78,8 @@ private int count=0; //Initialize count to 0
 		
 		cu.accept(new ASTVisitor() {public boolean visit(MethodDeclaration node) {
 			org.eclipse.jdt.core.dom.Type returntype=node.getReturnType2();
-			String qualifiedName=returntype.toString();
+			ITypeBinding bind1=returntype.resolveBinding();
+			String qualifiedName=bind1.getQualifiedName();
 			if (type.equals(qualifiedName)) { 
 				count++; //if equal update counter 
 			} 
