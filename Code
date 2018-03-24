@@ -1,0 +1,85 @@
+public boolean visit(TypeDeclaration node) {
+				String name = node.getName().getFullyQualifiedName();
+				
+				if (type.equals(name)) declarationsFound++;
+		
+				if (node.getSuperclassType() != null) {
+					if (type.equals(node.getSuperclassType().toString())) referencesFound++;						
+				}
+				
+				ITypeBinding nodeBinding = node.resolveBinding();
+				if (nodeBinding.getInterfaces() != null) {
+					ITypeBinding[] interfaces = nodeBinding.getInterfaces();
+					for (ITypeBinding i : interfaces) {
+						if (type.equals(i.getQualifiedName())) referencesFound++;							
+					}
+				}
+				
+				return super.visit(node); 
+			}
+
+			public boolean visit(VariableDeclarationFragment node) {
+				
+				String name = node.resolveBinding().getType().getName();
+				if (type.equals(name)) referencesFound++;
+				return super.visit(node);
+}
+			
+			
+			public boolean visit(MethodDeclaration node) {
+			
+				for (Object o : node.parameters()) {
+					SingleVariableDeclaration svd = (SingleVariableDeclaration) o;
+					if (type.equals(svd.getType().toString())) referencesFound++;
+				}
+				
+				return super.visit(node);
+			}
+			
+			public boolean visit(MethodInvocation node) {
+				
+				
+				return super.visit(node);
+			}
+			
+	
+			public boolean visit(ClassInstanceCreation node) {
+				String name = node.getType().toString();
+				if (type.equals(name)) referencesFound++;	
+				return false; // do not continue 
+		}
+			
+
+			
+			
+			public boolean visit(AnnotationTypeDeclaration node) {
+				String name = node.getName().getFullyQualifiedName();
+				if (type.equals(name)) declarationsFound++;					
+				return false; // do not continue 
+			}
+			
+			
+			public boolean visit(EnumDeclaration node) {
+				String name = node.getName().getFullyQualifiedName();
+				if (type.equals(name)) declarationsFound++;					
+				ITypeBinding e = node.resolveBinding();
+				if (e.getInterfaces() != null) {
+					ITypeBinding[] interfaces = e.getInterfaces();
+					for (ITypeBinding i : interfaces) {
+						if (type.equals(i.getQualifiedName())) referencesFound++;
+						//if (DEBUG) System.out.println("Implements Reference: " + i.getName());
+					}
+				}
+				
+
+				
+				return false; // do not continue 
+}
+
+			public boolean visit(FieldDeclaration node) {
+				String fullyQualifiedName = node.getType().toString();
+				if (type.equals(fullyQualifiedName)) {
+					referencesFound++;
+				}
+				return true;
+			}
