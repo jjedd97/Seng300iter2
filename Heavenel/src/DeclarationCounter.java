@@ -9,47 +9,42 @@ public class DeclarationCounter {
 	
 	public static void updateCounter(CompilationUnit cu) {
 		
-		cu.accept(new ASTVisitor() { //create visitor for TypeDeclaration
-			// Count Declarations
+		// Visitor for TypeDeclaration node
+		cu.accept(new ASTVisitor() { 
 			public boolean visit(TypeDeclaration node) {
-				ITypeBinding bind=node.resolveBinding();
-				String qualifiedName = node.getName().getFullyQualifiedName(); //get node name
-				if (bind!=null)
-				{
-					qualifiedName=bind.getQualifiedName();
-				}
-				if (Main.type.equals(qualifiedName)) { //compare
-					Main.declarationsFound++; //if equal update counter
-				}
+				String nodeName = node.getName().getFullyQualifiedName();
+				ITypeBinding bindedNode = node.resolveBinding();
+				nodeName = bindedNode.getQualifiedName();
+				
+				if (Main.type.equals(nodeName)) 
+					Main.declarationsFound++; 
+					
 				return true;
-			}
-		});
+			}});
 		
-		cu.accept(new ASTVisitor() { //create visitor for TypeDeclaration
-			// Count Declarations
+		// Visitor for AnonymousClassDeclaration node
+		cu.accept(new ASTVisitor() {
 			public boolean visit(AnonymousClassDeclaration node) {
-				ITypeBinding bind =node.resolveBinding();
-	
-				String qualifiedName = bind.getQualifiedName();//get node name
-				if (Main.type.equals(qualifiedName)) { //compare
-					Main.declarationsFound++; //if equal update counter
-				}
+				ITypeBinding bindedNode = node.resolveBinding();
+				String nodeName = bindedNode.getQualifiedName();
+				
+				if (Main.type.equals(nodeName)) 
+					Main.declarationsFound++; 
+					
 				return true;
-			}
-		});
+			}});
 		
-		cu.accept(new ASTVisitor() { //create visitor for TypeDeclaration
-			// Count Declarations
+		// Visitor for MarkerAnnotation node
+		cu.accept(new ASTVisitor() { 
 			public boolean visit(MarkerAnnotation node) {
-				ITypeBinding bind =node.resolveTypeBinding();
-				String qualifiedName = bind.getQualifiedName();//get node name
-				System.out.println(bind.getQualifiedName());
-				if (Main.type.equals(qualifiedName)) { //compare
-					Main.declarationsFound++; //if equal update counter
-				}
-				return true;
-			}
-		});
-	}
+				ITypeBinding bindedNode = node.resolveTypeBinding();
+				String nodeName = bindedNode.getQualifiedName();
+				
+				if (Main.type.equals(nodeName)) 
+					Main.declarationsFound++; 
 
+				return true;
+			}});
+		
+	}
 }
