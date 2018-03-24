@@ -1,10 +1,8 @@
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -72,7 +70,7 @@ private int count=0; //Initialize count to 0
 	        String[] parts2 = namec.split(";");
 	        String qualifiedName= parts2[0];
 				if (type.equals(qualifiedName)) { 
-					count++; //if equal update counter 
+					count++; //if equal update counter
 				} 
 				return true;
 			}
@@ -88,17 +86,15 @@ private int count=0; //Initialize count to 0
 			for (Object o : node.parameters()) {
 				SingleVariableDeclaration svd = (SingleVariableDeclaration) o;
 				IVariableBinding bind=svd.resolveBinding();
-				if (type.equals(svd.getType().toString())) count++;
+				if (type.equals(svd.getType().toString())) { 
+					count++;
+				}
 			}
 			
-			return super.visit(node);
+			return false;
 		}});
 		
-		
-		cu.accept(new ASTVisitor() {public boolean visit(MethodInvocation node) {
-			
-			return super.visit(node);
-		}});
+
 		
 		
 
@@ -109,9 +105,11 @@ private int count=0; //Initialize count to 0
 	          {
 	        	qualifiedName= bind.getQualifiedName();
 	          }
-			if (type.equals(qualifiedName)) count++;	
+			if (type.equals(qualifiedName)) {
+				count++;	
+			}
 			return false; // do not continue 
-	}});
+	}});  
 		
 		
 
@@ -123,7 +121,10 @@ private int count=0; //Initialize count to 0
 			if (e.getInterfaces() != null) {
 				ITypeBinding[] interfaces = e.getInterfaces();
 				for (ITypeBinding i : interfaces) {
-					if (type.equals(i.getQualifiedName())) count++;
+					if (type.equals(i.getQualifiedName())) {
+						count++;
+					}
+					
 				}
 			}
 			
@@ -132,13 +133,9 @@ private int count=0; //Initialize count to 0
 			return false; // do not continue 
 		}});
 		
-		cu.accept(new ASTVisitor() {public boolean visit(ReturnStatement node) {
-			Expression ex=node.getExpression();
-			ITypeBinding bind= ex.resolveTypeBinding();
-		    String qualifiedName=bind.getQualifiedName();
-			if (type.equals(qualifiedName)) count++;
-			return false; // do not continue 
-		}});
+
+		
+		
 		
 	
 	}
