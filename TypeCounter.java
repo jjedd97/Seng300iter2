@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -15,13 +16,10 @@ public class TypeCounter
 	
 	public static void main(String[] args) throws FileNotFoundException, IllegalStateException, IOException
 	{
-		//Check number of inputs 
-		verifyinput(args); 
 		//intialize counters 
 		DeclarationCounter dcounter=new DeclarationCounter();
 		ReferenceCounter rcounter=new ReferenceCounter();
-		//store command line arguments
-		String type= args[1];
+		//store command line argument
 		Path inputPath = Paths.get(args[0]);
 		Path fullPath = inputPath.toAbsolutePath();
 		File directory = new File(args[0]);
@@ -56,30 +54,67 @@ public class TypeCounter
 		        	//parse
 		        	parser.setSource(strfile.toCharArray()); 
 		    	    CompilationUnit cu = (CompilationUnit)parser.createAST(null);
+		    	    System.out.println();
 		    	    //count declarations
-		    	    dcounter.updateCounter(cu, type);
+		    	    dcounter.updateCounter(cu);
 		    	    //count references
-		    	    rcounter.updateCounter(cu, type);
+		    	    rcounter.updateCounter(cu);
 		    		}
 		        }
 		       } 
 		   //outside for loop
-		   int dcount=dcounter.getCount(); //get the final declaration count
-		   int rcount=rcounter.getcount(); //get the final reference count 
-		   System.out.println(type + "; Declarations found: " + dcount + "; References found: " + rcount + ".");
+		   List <String> rlist=rcounter.getList();
+		   List <String> dlist=dcounter.getList();
 		   
+		   while((!rlist.isEmpty())||(!dlist.isEmpty()))
+		   {
+			   int rcount=0;
+			   int dcount=0;
+			   String type="";
+			   
+			   if (!(rlist.isEmpty()))
+			   {
+				  type=rlist.get(0);
+				  while (rlist.remove(type))
+				  {
+				  rcount++;
+				  }
+				  while (dlist.remove(type))
+				  {
+				  dcount++;
+				  }
+			   }
+				  else if (!(dlist.isEmpty())&&rlist.isEmpty())
+				   {
+					  type=dlist.get(0);
+					  while (dlist.remove(type))
+					  {
+					  dcount++;
+					  }
+					  while (rlist.remove(type))
+					  {
+					  rcount++;
+					  }
+				   }
+					  else if (!(rlist.isEmpty())&&dlist.isEmpty())
+					   {
+						  type=rlist.get(0);
+						  while (dlist.remove(type))
+						  {
+						  dcount++;
+						  }
+						  while (rlist.remove(type))
+						  {
+						  rcount++;
+						  }
+				  
+			   }
+				  System.out.println(type + ": Declarations found: " + dcount + "; References found: " + rcount + ".");
+		   }
+	 
+		   }  
 		  
-	}
 	
 		
-	//Ensure user entered correct number of command line arguments
-	//throws IllegalStateException if there are not two arguments
-	private static void verifyinput(String[] args)throws IllegalStateException{
-	   if (args.length!=2) {
-	     throw new IllegalStateException("Usage: 'Program name' 'Directoy Path' 'Fully qualified java type'");
-	   }
-	   return;
-	   }
-	
 	
 }
