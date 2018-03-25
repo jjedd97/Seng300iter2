@@ -7,7 +7,6 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class DeclarationCounter {
-	
 	private static ArrayList<String> declarations = new ArrayList<>();
 	
 	public static void updateCounter(CompilationUnit cu) {
@@ -18,11 +17,8 @@ public class DeclarationCounter {
 				String nodeName = node.getName().getFullyQualifiedName();
 				ITypeBinding bindedNode = node.resolveBinding();
 				nodeName = bindedNode.getQualifiedName();
-				node.getParent().getAST();
 				
-				if (Main.type.equals(nodeName)) 
-					Main.declarationsFound++; 
-					
+				declarations.add(nodeName);		
 				return true;
 			}});
 		
@@ -32,17 +28,14 @@ public class DeclarationCounter {
 				ITypeBinding bindedNode = node.resolveBinding();
 				String nodeName = bindedNode.getQualifiedName();
 				
-				if (Main.type.equals(nodeName)) 
-					Main.declarationsFound++; 
-					
+				declarations.add(nodeName);			
 				return true;
 			}});
 	
 	}
 	
-	public ArrayList<String> getDeclarations(){
+	public static ArrayList<String> getList(){
 		return declarations;
-		
 	}
 
 }

@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Collections;
 import java.util.Map;
 import java.io.File;
 import org.eclipse.jdt.core.JavaCore;
@@ -7,6 +10,25 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class Parser {
 	
+	public static void counter() {
+		
+		ArrayList <String> references = ReferenceCounter.getList();
+		ArrayList <String> declarations = DeclarationCounter.getList();
+		
+		HashSet<String> referencesSet = new HashSet<String>(references);
+		
+		HashSet<String> list = new HashSet<String>();
+		list.addAll(referencesSet);
+		list.addAll(declarations);
+		
+		for (String type : list) {
+			Main.referencesFound = Collections.frequency(references, type);
+			Main.declarationsFound = Collections.frequency(declarations, type);
+			System.out.println(type + ". Declarations found: " + Main.declarationsFound +  "; References found: " + Main.referencesFound + ".");
+		}
+			
+	}
+				  
 	public void parse(String source, File file) {
 		
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
@@ -26,10 +48,8 @@ public class Parser {
 		parser.setUnitName(file.getName());
 
 		final CompilationUnit cu = (CompilationUnit) parser.createAST(null);
-
-	    ReferenceCounter.updateCounter(cu);
-	    DeclarationCounter.updateCounter(cu);
+		
+		ReferenceCounter.updateCounter(cu);
+		DeclarationCounter.updateCounter(cu);
 	}
-	
-
 }

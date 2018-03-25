@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -30,7 +31,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 
 public class ReferenceCounter {
-
+	private static ArrayList<String> references = new ArrayList<>();
+	
 	public static void updateCounter(CompilationUnit cu) {
 		
 		cu.accept(new ASTVisitor() {public boolean 	 visit(VariableDeclarationStatement node){
@@ -41,9 +43,8 @@ public class ReferenceCounter {
 				String[] parts = name.split(" ");
 				String qualifiedName = parts[0];
 				
-				if (Main.type.equals(qualifiedName))
-					Main.referencesFound++;
-			}
+				references.add(qualifiedName);
+				}
 			
 			return true;
 		}});
@@ -54,8 +55,8 @@ public class ReferenceCounter {
 	          
 	          if (bind != null)
 	        	qualifiedName= bind.getQualifiedName();
-	          if (Main.type.equals(qualifiedName))
-				Main.referencesFound++;
+	          
+	          references.add(qualifiedName);
 	          
 			return true;
 		}});
@@ -68,8 +69,7 @@ public class ReferenceCounter {
 	        String[] parts2 = nameC.split(";");
 	        String qualifiedName = parts2[0];
 	        
-			if (Main.type.equals(qualifiedName))
-				Main.referencesFound++;
+	        references.add(qualifiedName);
 				
 			return true;
 			}});
@@ -81,15 +81,13 @@ public class ReferenceCounter {
 				ITypeBinding parameterBind = returnType.resolveBinding();
 				String qualifiedName = parameterBind.getQualifiedName();
 				
-				if (Main.type.equals(qualifiedName))
-					Main.referencesFound++;
+				references.add(qualifiedName);
 			}
 			
 			for (Object aParameter : node.parameters()) {
 				SingleVariableDeclaration svd = (SingleVariableDeclaration) aParameter;
 				
-				if (Main.type.equals(svd.getType().toString())) 
-					Main.referencesFound++;
+				references.add(svd.getType().toString());
 			}
 			
 			return true;
@@ -101,8 +99,8 @@ public class ReferenceCounter {
 			
 			if (bind != null)
 	        	qualifiedName= bind.getQualifiedName();
-			if (Main.type.equals(qualifiedName)) 
-				Main.referencesFound++;	
+			
+			references.add(qualifiedName);
 				
 			return true; 
 		}});  
@@ -114,15 +112,13 @@ public class ReferenceCounter {
 			String[] parts2 = name.toString().split("<");
 			String qualifiedName = parts2[0];
 			
-			if (Main.type.equals(qualifiedName)) 
-					Main.referencesFound++;	
+			references.add(qualifiedName);
 			
 			if (node.resolveBinding().getInterfaces() != null) {
 				ITypeBinding[] interfaces = node.resolveBinding().getInterfaces();
 				
 				for (ITypeBinding i : interfaces) 
-					if (Main.type.equals(i.getQualifiedName())) 
-						Main.referencesFound++;	
+					references.add(i.getQualifiedName());
 			}
 			
 			return true;
@@ -135,8 +131,7 @@ public class ReferenceCounter {
 			String[] parts2 = name.toString().split("<");
 			String qualifiedName = parts2[0];
 			
-			if (Main.type.equals(qualifiedName)) 
-				Main.referencesFound++;	
+			references.add(qualifiedName);
 			
 			return true;
 		}});
@@ -145,8 +140,7 @@ public class ReferenceCounter {
 			ITypeBinding bindedNode = node.resolveTypeBinding();
 			String nodeName = bindedNode.getQualifiedName();
 			
-			if (Main.type.equals(nodeName)) 
-				Main.referencesFound++; 
+			references.add(nodeName);
 			
 			return true;
 		}});
@@ -155,8 +149,7 @@ public class ReferenceCounter {
 			ITypeBinding bindedNode = node.resolveTypeBinding();
 			String nodeName = bindedNode.getQualifiedName();
 			
-			if (Main.type.equals(nodeName)) 
-				Main.referencesFound++; 
+			references.add(nodeName);
 			
 			return true;
 		}});
@@ -165,8 +158,7 @@ public class ReferenceCounter {
 			ITypeBinding bindedNode = node.resolveTypeBinding();
 			String nodeName = bindedNode.getQualifiedName();
 			
-			if (Main.type.equals(nodeName)) 
-				Main.referencesFound++; 
+			references.add(nodeName);
 			
 			return true;
 		}});
@@ -175,8 +167,7 @@ public class ReferenceCounter {
 			ITypeBinding bindedNode = node.resolveBinding();
 			String nodeName = bindedNode.getQualifiedName();
 			
-			if (Main.type.equals(nodeName)) 
-				Main.referencesFound++; 
+			references.add(nodeName);
 			
 			return true;
 		}});
@@ -185,8 +176,7 @@ public class ReferenceCounter {
 			ITypeBinding bindedNode = node.resolveTypeBinding();
 			String nodeName = bindedNode.getQualifiedName();
 			
-			if (Main.type.equals(nodeName)) 
-				Main.referencesFound++; 
+			references.add(nodeName);
 			
 			return true;
 		}});
@@ -195,54 +185,46 @@ public class ReferenceCounter {
 			IPackageBinding bindedNode = node.resolveBinding();
 			String nodeName = bindedNode.getName();
 			
-			if (Main.type.equals(nodeName)) 
-				Main.referencesFound++; 
+			references.add(nodeName);
 			
 			return true;
 		}});
 		
 		cu.accept(new ASTVisitor() {public boolean visit(AnnotationTypeDeclaration node) {	
-			if (Main.type.equals("java.lang.annotation")) 
-				Main.referencesFound++; 
+			references.add("java.lang.annotation");
 			
 			return true;
 		}});
 		
 		cu.accept(new ASTVisitor() {public boolean visit(AnnotationTypeMemberDeclaration node) {			
-			if (Main.type.equals("java.lang.annotation")) 
-				Main.referencesFound++; 
+			references.add("java.lang.annotation");
 			
 			return true;
 		}});
 		
 		cu.accept(new ASTVisitor() {public boolean visit(NormalAnnotation node) {	
-			if (Main.type.equals("java.lang.annotation")) 
-				Main.referencesFound++; 
+			references.add("java.lang.annotation");
+			
 			return true;
 		}});
 		
 		// Visitor for MarkerAnnotation node
 		cu.accept(new ASTVisitor() {public boolean visit(MarkerAnnotation node) {
-				ITypeBinding bindedNode = node.resolveTypeBinding();
-				String nodeName = bindedNode.getQualifiedName();
-				
-				if (Main.type.equals("java.lang.annotation")) 
-					Main.referencesFound++; 
+			references.add("java.lang.annotation");
 
 				return true;
 			}});
 		
 		// Visitor for MarkerAnnotation node
 		cu.accept(new ASTVisitor() {public boolean visit(SingleMemberAnnotation node) {
-				ITypeBinding bindedNode = node.resolveTypeBinding();
-				String nodeName = bindedNode.getQualifiedName();
-				
-				if (Main.type.equals("java.lang.annotation")) 
-					Main.referencesFound++; 
+			references.add("java.lang.annotation");
 
 				return true;
 			}});
 		
-		
 	}	
+	
+	public static ArrayList<String> getList(){
+		return references;
+	}
 }

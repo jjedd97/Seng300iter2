@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Main {
 
@@ -23,9 +24,8 @@ public class Main {
 
 		Reader reader = new Reader();
 		reader.parseFiles();
-
-		System.out.println(type + ". Declarations found: " + declarationsFound + 
-				"; References found: " + referencesFound + ".");
+		
+		Parser.counter();
 	}
 }
 
