@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -20,17 +22,9 @@ public class TypeCounter
 		ReferenceCounter rcounter=new ReferenceCounter();
 		//store command line arguments
 		String type= args[1];
+		Path inputPath = Paths.get(args[0]);
+		Path fullPath = inputPath.toAbsolutePath();
 		File directory = new File(args[0]);
-		//create a parser
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
-	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
-	    parser.setResolveBindings(true);
-	    parser.setBindingsRecovery(true);
-		Map options = JavaCore.getOptions();
-		parser.setCompilerOptions(options);
-		String path=args[0];
-		String [] patharray= {path};
-		parser.setEnvironment(null, patharray, null, true);
 	     //check files in directory
 		if (!(directory.isDirectory())) {
 			throw new IllegalStateException("Path specified is not a directory");
@@ -40,13 +34,22 @@ public class TypeCounter
 		   //instantiate file checker
 		   //find java files and parse
 		   FileHandler fhandle=new FileHandler();
+		   String path=args[0];
+   		   String [] patharray= {path};
 		   for (File file : fileList){
 		       if (file.isFile()){
 		    	boolean isjavafile;
 		        isjavafile=fhandle.CheckFile(file);
 		        if (isjavafile)
 		        {
-		        	parser.setUnitName(args[0]);
+		        	ASTParser parser = ASTParser.newParser(AST.JLS8);
+		    	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		    	    parser.setResolveBindings(true);
+		    	    parser.setBindingsRecovery(true);
+		    		Map options = JavaCore.getOptions();
+		    		parser.setCompilerOptions(options);
+		    		parser.setEnvironment(patharray, patharray, null, true);
+		        	parser.setUnitName(file.getName());
 		        	String strfile;
 		        	//turn file to a string
 		        	strfile=fhandle.getFileContent(file);
