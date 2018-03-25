@@ -1,13 +1,14 @@
+
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
-import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 <<<<<<< HEAD
 import org.eclipse.jdt.core.dom.VariableDeclaration;
@@ -16,29 +17,28 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.ReturnStatement;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
+<<<<<<< HEAD
 import com.sun.glass.ui.CommonDialogs.Type;
 >>>>>>> 0be563616e6d3b12f55f5fe82f3966651b1d4e74
+=======
+>>>>>>> f8f4c65c9792e16266433c7cd70d9b236e98b4f8
 
 public class ReferenceCounter {
-	
-private int count=0; //Initialize count to 0
-	
-	public int getcount(){
-		return count; //return current reference count
+
+private static List<String> listreferences=new ArrayList<>(); //creates a static list of references found
+
+	public List<String> getList(){
+		return listreferences;
+		
 	}
 	
-	public void updateCounter(CompilationUnit cu, String type) {
+	public void updateCounter(CompilationUnit cu) {
 		// Count References
+		//code based on: https://www.programcreek.com/2014/01/how-to-resolve-bindings-when-using-eclipse-jdt-astparser/
 		cu.accept(new ASTVisitor() {public boolean 	 visit(VariableDeclarationStatement node){
 			for (Iterator iter = node.fragments().iterator(); iter.hasNext();) {	 
 				VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
@@ -46,9 +46,8 @@ private int count=0; //Initialize count to 0
 				String name = fragment.getName().resolveBinding().toString();
 				String[] parts = name.split(" ");
 				String qualifiedName = parts[0];
-				if (type.equals(qualifiedName)) { //compare
-					count++; //if equal update counter
-				}
+				listreferences.add(qualifiedName);
+				//System.out.println(qualifiedName);
 			}
 			return true;
 		}
@@ -92,24 +91,17 @@ private int count=0; //Initialize count to 0
 	          if (bind!=null)
 	          {
 	        	qualifiedName= bind.getQualifiedName();
+	        	listreferences.add(qualifiedName);
+	        	//System.out.println(qualifiedName);
 	          }
 	        
-				if (type.equals(qualifiedName)) { 
-					count++; //if equal update counter 
-				}
 				return true;
 			}
 		});
 		cu.accept(new ASTVisitor() {public boolean 	visit(ImportDeclaration node) { 
 			IBinding bind=  node.resolveBinding();
-	        String name= node.toString(); 
-	        String[] parts = name.split(" ");
-	        String namec=parts[parts.length-1];
-	        String[] parts2 = namec.split(";");
-	        String qualifiedName= parts2[0];
-				if (type.equals(qualifiedName)) { 
-					count++; //if equal update counter
-				} 
+			String qualifiedName=bind.getName();
+			listreferences.add(qualifiedName);
 				return true;
 			}
 		});
@@ -118,17 +110,17 @@ private int count=0; //Initialize count to 0
 			org.eclipse.jdt.core.dom.Type returntype=node.getReturnType2();
 			ITypeBinding bind1=returntype.resolveBinding();
 			String qualifiedName=bind1.getQualifiedName();
-			if (type.equals(qualifiedName)) { 
-				count++; //if equal update counter 
-			} 
-			
+			listreferences.add(qualifiedName);
+			//System.out.println(qualifiedName);
 			for (Object o : node.parameters()) {
-				SingleVariableDeclaration svd = (SingleVariableDeclaration) o;
-				IVariableBinding bind=svd.resolveBinding();
-				if (type.equals(svd.getType().toString())) { 
-					count++;
+ 				SingleVariableDeclaration svd = (SingleVariableDeclaration) o;
+ 				IVariableBinding bind=svd.resolveBinding();
+ 				String name=bind.toString();
+ 				String[] parts = name.split(" ");
+				String qualifiedName2 = parts[0];
+				listreferences.add(qualifiedName2);
+ 					
 				}
-			}
 			
 			return false;
 		}});
@@ -143,10 +135,9 @@ private int count=0; //Initialize count to 0
 			if (bind!=null)
 	          {
 	        	qualifiedName= bind.getQualifiedName();
+	        	listreferences.add(qualifiedName);
+	        	//System.out.println(qualifiedName);
 	          }
-			if (type.equals(qualifiedName)) {
-				count++;	
-			}
 			return false; // do not continue 
 	}});  
 		
@@ -160,15 +151,9 @@ private int count=0; //Initialize count to 0
 			if (e.getInterfaces() != null) {
 				ITypeBinding[] interfaces = e.getInterfaces();
 				for (ITypeBinding i : interfaces) {
-					if (type.equals(i.getQualifiedName())) {
-						count++;
-					}
-					
+					listreferences.add(i.getQualifiedName());			
 				}
 			}
-			
-
-			
 			return false; // do not continue 
 		}});
 		

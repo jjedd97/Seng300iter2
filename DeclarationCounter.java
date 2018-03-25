@@ -1,20 +1,28 @@
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class DeclarationCounter {
 	private int count=0; //Initialize count to 0
-	
-	public int getCount(){
-		return count; //return current declaration count
+	//create a static list of all declarations found
+	private static List<String> listdeclaration=new ArrayList<>();
+
+	public List<String> getList(){
+		return listdeclaration;
+		
 	}
+
 	
 	
-	public void updateCounter(CompilationUnit cu, String type) {
+	public void updateCounter(CompilationUnit cu) {
 		
 		cu.accept(new ASTVisitor() { //create visitor for TypeDeclaration
 			// Count Declarations
@@ -24,9 +32,8 @@ public class DeclarationCounter {
 				if (bind!=null)
 				{
 					qualifiedName=bind.getQualifiedName();
-				}
-				if (type.equals(qualifiedName)) { //compare
-					count++; //if equal update counter
+					listdeclaration.add(qualifiedName);
+					//System.out.println(qualifiedName);
 				}
 				return true;
 			}
@@ -38,9 +45,8 @@ public class DeclarationCounter {
 				ITypeBinding bind =node.resolveBinding();
 	
 				String qualifiedName = bind.getQualifiedName();//get node name
-				if (type.equals(qualifiedName)) { //compare
-					count++; //if equal update counter
-				}
+				listdeclaration.add(qualifiedName);
+				//System.out.println(qualifiedName);
 				return true;
 			}
 		});
@@ -50,13 +56,13 @@ public class DeclarationCounter {
 			public boolean visit(MarkerAnnotation node) {
 				ITypeBinding bind =node.resolveTypeBinding();
 				String qualifiedName = bind.getQualifiedName();//get node name
-				System.out.println(bind.getQualifiedName());
-				if (type.equals(qualifiedName)) { //compare
-					count++; //if equal update counter
-				}
+				listdeclaration.add(qualifiedName);
+				//System.out.println(qualifiedName);
 				return true;
 			}
 		});
+		
+
 	}
 
 }
