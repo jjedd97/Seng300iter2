@@ -14,6 +14,7 @@ public class Parser {
 		parser.setSource(source.toCharArray());
 		
 		Map<String, String> options = JavaCore.getOptions();
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		parser.setCompilerOptions(options);
 		
 		parser.setSource(source.toCharArray());

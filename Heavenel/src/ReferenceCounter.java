@@ -1,28 +1,42 @@
 import java.util.Iterator;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.ArrayAccess;
+import org.eclipse.jdt.core.dom.ArrayCreation;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 
 
 public class ReferenceCounter {
 
 	public static void updateCounter(CompilationUnit cu) {
-
+		
 		cu.accept(new ASTVisitor() {public boolean 	 visit(VariableDeclarationStatement node){
 			for (Iterator iter = node.fragments().iterator(); iter.hasNext();) {	 
 				VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
-				IBinding binding = fragment.getName().resolveBinding();
 				
 				String name = fragment.getName().resolveBinding().toString();
 				String[] parts = name.split(" ");
@@ -37,45 +51,43 @@ public class ReferenceCounter {
 		
 		cu.accept(new ASTVisitor() {public boolean 	visit(FieldDeclaration node) { 
 	          ITypeBinding bind =  node.getType().resolveBinding();
-	          String qualifiedName = node.getType().toString(); //get field type
+	          String qualifiedName = node.getType().toString();
 	          
 	          if (bind != null)
 	        	qualifiedName= bind.getQualifiedName();
 	          if (Main.type.equals(qualifiedName))
-				Main.referencesFound++; //if equal update counter 
+				Main.referencesFound++;
 	          
 			return true;
-			}});
-		
+		}});
+	
 		cu.accept(new ASTVisitor() {public boolean 	visit(ImportDeclaration node) { 
-			IBinding bind =  node.resolveBinding();
 	        String name = node.toString(); 
 	        
 	        String[] parts = name.split(" ");
-	        String namec=parts[parts.length-1];
-	        String[] parts2 = namec.split(";");
-	        String qualifiedName= parts2[0];
+	        String nameC = parts[parts.length - 1];
+	        String[] parts2 = nameC.split(";");
+	        String qualifiedName = parts2[0];
 	        
 			if (Main.type.equals(qualifiedName))
-				Main.referencesFound++; //if equal update counter
+				Main.referencesFound++;
 				
 			return true;
 			}});
 		
 		cu.accept(new ASTVisitor() {public boolean visit(MethodDeclaration node) {
-			org.eclipse.jdt.core.dom.Type returnType = node.getReturnType2();		
+			Type returnType = node.getReturnType2();		
 			
 			if (returnType != null) {
 				ITypeBinding parameterBind = returnType.resolveBinding();
 				String qualifiedName = parameterBind.getQualifiedName();
 				
 				if (Main.type.equals(qualifiedName))
-					Main.referencesFound++; //if equal update counter 
+					Main.referencesFound++;
 			}
 			
 			for (Object aParameter : node.parameters()) {
 				SingleVariableDeclaration svd = (SingleVariableDeclaration) aParameter;
-				IVariableBinding bind = svd.resolveBinding();
 				
 				if (Main.type.equals(svd.getType().toString())) 
 					Main.referencesFound++;
@@ -88,20 +100,26 @@ public class ReferenceCounter {
 			ITypeBinding bind=node.resolveTypeBinding();
 			String qualifiedName = node.getType().toString();
 			
-			if (bind!=null)
+			if (bind != null)
 	        	qualifiedName= bind.getQualifiedName();
 			if (Main.type.equals(qualifiedName)) 
 				Main.referencesFound++;	
 				
 			return true; 
 		}});  
-		
-		cu.accept(new ASTVisitor() {public boolean visit(EnumDeclaration node) {
-			String name = node.getName().getFullyQualifiedName();				
-			ITypeBinding e = node.resolveBinding();
 			
-			if (e.getInterfaces() != null) {
-				ITypeBinding[] interfaces = e.getInterfaces();
+		cu.accept(new ASTVisitor() {public boolean visit(EnumDeclaration node) {
+			ITypeBinding bind = node.resolveBinding();
+			String[] parts = bind.toString().split(" ");
+			String name = parts[4];
+			String[] parts2 = name.toString().split("<");
+			String qualifiedName = parts2[0];
+			
+			if (Main.type.equals(qualifiedName)) 
+					Main.referencesFound++;	
+			
+			if (node.resolveBinding().getInterfaces() != null) {
+				ITypeBinding[] interfaces = node.resolveBinding().getInterfaces();
 				
 				for (ITypeBinding i : interfaces) 
 					if (Main.type.equals(i.getQualifiedName())) 
@@ -110,6 +128,98 @@ public class ReferenceCounter {
 			
 			return true;
 		}});
-	
+		
+		cu.accept(new ASTVisitor() {public boolean visit(EnumConstantDeclaration node) {
+			ITypeBinding bind = node.resolveVariable().getType();
+			String[] parts = bind.toString().split(" ");
+			String name = parts[4];
+			String[] parts2 = name.toString().split("<");
+			String qualifiedName = parts2[0];
+			
+			if (Main.type.equals(qualifiedName)) 
+				Main.referencesFound++;	
+			
+			return true;
+		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(AnnotationTypeDeclaration node) {	
+			ITypeBinding bindedNode = node.resolveBinding();
+			String nodeName = bindedNode.getQualifiedName();
+			
+			if (Main.type.equals(nodeName)) 
+				Main.referencesFound++; 
+			
+			return true;
+		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(AnnotationTypeMemberDeclaration node) {	
+			IMethodBinding bindedNode = node.resolveBinding();
+			String nodeName = bindedNode.getName();
+			
+			if (Main.type.equals(nodeName)) 
+				Main.referencesFound++; 
+			return true;
+		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(ArrayAccess node) {	
+			ITypeBinding bindedNode = node.resolveTypeBinding();
+			String nodeName = bindedNode.getQualifiedName();
+			
+			if (Main.type.equals(nodeName)) 
+				Main.referencesFound++; 
+			
+			return true;
+		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(ArrayInitializer node) {	
+			ITypeBinding bindedNode = node.resolveTypeBinding();
+			String nodeName = bindedNode.getQualifiedName();
+			
+			if (Main.type.equals(nodeName)) 
+				Main.referencesFound++; 
+			
+			return true;
+		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(ArrayCreation node) {	
+			ITypeBinding bindedNode = node.resolveTypeBinding();
+			String nodeName = bindedNode.getQualifiedName();
+			
+			if (Main.type.equals(nodeName)) 
+				Main.referencesFound++; 
+			
+			return true;
+		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(AnonymousClassDeclaration node) {	
+			ITypeBinding bindedNode = node.resolveBinding();
+			String nodeName = bindedNode.getQualifiedName();
+			
+			if (Main.type.equals(nodeName)) 
+				Main.referencesFound++; 
+			
+			return true;
+		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(CastExpression node) {	
+			ITypeBinding bindedNode = node.resolveTypeBinding();
+			String nodeName = bindedNode.getQualifiedName();
+			
+			if (Main.type.equals(nodeName)) 
+				Main.referencesFound++; 
+			
+			return true;
+		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(PackageDeclaration node) {	
+			IPackageBinding bindedNode = node.resolveBinding();
+			String nodeName = bindedNode.getName();
+			
+			if (Main.type.equals(nodeName)) 
+				Main.referencesFound++; 
+			
+			return true;
+		}});
+		
 	}	
 }
