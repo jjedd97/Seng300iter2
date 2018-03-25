@@ -34,6 +34,7 @@ private int count=0; //Initialize count to 0
 	
 	public void updateCounter(CompilationUnit cu, String type) {
 		// Count References
+		//code based on: https://www.programcreek.com/2014/01/how-to-resolve-bindings-when-using-eclipse-jdt-astparser/
 		cu.accept(new ASTVisitor() {public boolean 	 visit(VariableDeclarationStatement node){
 			for (Iterator iter = node.fragments().iterator(); iter.hasNext();) {	 
 				VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
@@ -41,6 +42,7 @@ private int count=0; //Initialize count to 0
 				String name = fragment.getName().resolveBinding().toString();
 				String[] parts = name.split(" ");
 				String qualifiedName = parts[0];
+				//System.out.println(qualifiedName);
 				if (type.equals(qualifiedName)) { //compare
 					count++; //if equal update counter
 				}
@@ -54,6 +56,7 @@ private int count=0; //Initialize count to 0
 	          if (bind!=null)
 	          {
 	        	qualifiedName= bind.getQualifiedName();
+	        	//System.out.println(qualifiedName);
 	          }
 	        
 				if (type.equals(qualifiedName)) { 
@@ -64,11 +67,7 @@ private int count=0; //Initialize count to 0
 		});
 		cu.accept(new ASTVisitor() {public boolean 	visit(ImportDeclaration node) { 
 			IBinding bind=  node.resolveBinding();
-	        String name= node.toString(); 
-	        String[] parts = name.split(" ");
-	        String namec=parts[parts.length-1];
-	        String[] parts2 = namec.split(";");
-	        String qualifiedName= parts2[0];
+			String qualifiedName=bind.getName();
 				if (type.equals(qualifiedName)) { 
 					count++; //if equal update counter
 				} 
@@ -80,17 +79,11 @@ private int count=0; //Initialize count to 0
 			org.eclipse.jdt.core.dom.Type returntype=node.getReturnType2();
 			ITypeBinding bind1=returntype.resolveBinding();
 			String qualifiedName=bind1.getQualifiedName();
+			//System.out.println(qualifiedName);
 			if (type.equals(qualifiedName)) { 
 				count++; //if equal update counter 
 			} 
 			
-			for (Object o : node.parameters()) {
-				SingleVariableDeclaration svd = (SingleVariableDeclaration) o;
-				IVariableBinding bind=svd.resolveBinding();
-				if (type.equals(svd.getType().toString())) { 
-					count++;
-				}
-			}
 			
 			return false;
 		}});
@@ -105,6 +98,7 @@ private int count=0; //Initialize count to 0
 			if (bind!=null)
 	          {
 	        	qualifiedName= bind.getQualifiedName();
+	        	//System.out.println(qualifiedName);
 	          }
 			if (type.equals(qualifiedName)) {
 				count++;	
