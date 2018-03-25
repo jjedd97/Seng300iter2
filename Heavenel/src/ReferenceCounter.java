@@ -13,21 +13,20 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 
 
 public class ReferenceCounter {
@@ -142,25 +141,6 @@ public class ReferenceCounter {
 			return true;
 		}});
 		
-		cu.accept(new ASTVisitor() {public boolean visit(AnnotationTypeDeclaration node) {	
-			ITypeBinding bindedNode = node.resolveBinding();
-			String nodeName = bindedNode.getQualifiedName();
-			
-			if (Main.type.equals(nodeName)) 
-				Main.referencesFound++; 
-			
-			return true;
-		}});
-		
-		cu.accept(new ASTVisitor() {public boolean visit(AnnotationTypeMemberDeclaration node) {	
-			IMethodBinding bindedNode = node.resolveBinding();
-			String nodeName = bindedNode.getName();
-			
-			if (Main.type.equals(nodeName)) 
-				Main.referencesFound++; 
-			return true;
-		}});
-		
 		cu.accept(new ASTVisitor() {public boolean visit(ArrayAccess node) {	
 			ITypeBinding bindedNode = node.resolveTypeBinding();
 			String nodeName = bindedNode.getQualifiedName();
@@ -220,6 +200,49 @@ public class ReferenceCounter {
 			
 			return true;
 		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(AnnotationTypeDeclaration node) {	
+			if (Main.type.equals("java.lang.annotation")) 
+				Main.referencesFound++; 
+			
+			return true;
+		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(AnnotationTypeMemberDeclaration node) {			
+			if (Main.type.equals("java.lang.annotation")) 
+				Main.referencesFound++; 
+			
+			return true;
+		}});
+		
+		cu.accept(new ASTVisitor() {public boolean visit(NormalAnnotation node) {	
+			if (Main.type.equals("java.lang.annotation")) 
+				Main.referencesFound++; 
+			return true;
+		}});
+		
+		// Visitor for MarkerAnnotation node
+		cu.accept(new ASTVisitor() {public boolean visit(MarkerAnnotation node) {
+				ITypeBinding bindedNode = node.resolveTypeBinding();
+				String nodeName = bindedNode.getQualifiedName();
+				
+				if (Main.type.equals("java.lang.annotation")) 
+					Main.referencesFound++; 
+
+				return true;
+			}});
+		
+		// Visitor for MarkerAnnotation node
+		cu.accept(new ASTVisitor() {public boolean visit(SingleMemberAnnotation node) {
+				ITypeBinding bindedNode = node.resolveTypeBinding();
+				String nodeName = bindedNode.getQualifiedName();
+				
+				if (Main.type.equals("java.lang.annotation")) 
+					Main.referencesFound++; 
+
+				return true;
+			}});
+		
 		
 	}	
 }
