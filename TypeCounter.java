@@ -19,14 +19,7 @@ public class TypeCounter
 		//intialize counters 
 		DeclarationCounter dcounter=new DeclarationCounter();
 		ReferenceCounter rcounter=new ReferenceCounter();
-		//store command line argument
-		Path inputPath = Paths.get(args[0]);
-		Path fullPath = inputPath.toAbsolutePath();
 		File directory = new File(args[0]);
-	     //check files in directory
-		if (!(directory.isDirectory())) {
-			throw new IllegalStateException("Path specified is not a directory");
-		}
 		//get all the files from a directory
 		   File[] fileList = directory.listFiles();
 		   //instantiate file checker
@@ -35,6 +28,10 @@ public class TypeCounter
 		   String path=args[0];
    		   String [] patharray= {path};
 		   for (File file : fileList){
+			   if (file.isDirectory())
+			   {
+				   
+			   }
 		       if (file.isFile()){
 		    	boolean isjavafile;
 		        isjavafile=fhandle.CheckFile(file);
@@ -91,29 +88,14 @@ public class TypeCounter
 					  {
 					  dcount++;
 					  }
-					  while (rlist.remove(type))
-					  {
-					  rcount++;
-					  }
+					  
 				   }
-					  else if (!(rlist.isEmpty())&&dlist.isEmpty())
-					   {
-						  type=rlist.get(0);
-						  while (dlist.remove(type))
-						  {
-						  dcount++;
-						  }
-						  while (rlist.remove(type))
-						  {
-						  rcount++;
-						  }
 				  
-			   }
+			   
 				  System.out.println(type + ": Declarations found: " + dcount + "; References found: " + rcount + ".");
 		   }
+           }
 	 
-		   }  
-		  
 	
 		
 	
