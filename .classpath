@@ -11,5 +11,7 @@
 	<classpathentry kind="lib" path="C:/Users/Heavenel/eclipse/java-oxygen/eclipse/plugins/org.eclipse.equinox.preferences-3.7.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Heavenel/eclipse/java-oxygen/eclipse/plugins/org.eclipse.jdt.core-3.13.100.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Heavenel/eclipse/java-oxygen/eclipse/plugins/org.eclipse.osgi-3.12.50.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="lib" path="C:/Users/Heavenel/Desktop/test/system-rules-1.16.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

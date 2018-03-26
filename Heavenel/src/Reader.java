@@ -13,7 +13,7 @@ import java.util.jar.JarFile;
 
 public class Reader {
 	private static List<java.io.File> files = new ArrayList<java.io.File>();
-	public static ArrayList jarList;
+	private static ArrayList jarList;
 	
 	public Reader() throws IOException {
 		files = find();
