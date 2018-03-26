@@ -7,33 +7,39 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class Reader {
-	private File[] files = null;
+	private static List<java.io.File> files = new ArrayList<java.io.File>();
 	public static ArrayList jarList;
 	
 	public Reader() throws IOException {
-		files = finder();
+		files = find();
 	}
 	
-	private File[] finder() throws IOException {
+	private static void search(File root) {   
+		if(root.isDirectory() ) 
+	        for(File file : root.listFiles()) 
+	            search(file);
+	            
+	    else if(root.isFile() && root.getName().endsWith(".java")) 
+	        files.add(root);
+	}
+	
+	private static List<java.io.File> find() throws IOException {
 		if (Main.pathName.endsWith(".jar")) 
 			jarList = JarDescender.addFile(Main.pathName);
 			
 		else {
 			File dir = new File(Main.pathName);
-			return dir.listFiles(new FilenameFilter() { 
-				public boolean accept(File dir, String filename) {
-					return filename.endsWith(".java");
-				}
-			});
+			search(dir);
 		}
-		return null;
+		return files;
 	}
 	
-	private static String processer (InputStream input) throws IOException {
+	private static String processEntry (InputStream input) throws IOException {
 		InputStreamReader isr = new InputStreamReader(input);
 		BufferedReader reader = new BufferedReader(isr);
 		String line;
@@ -59,7 +65,7 @@ public class Reader {
 				JarEntry entry = jarFile.getJarEntry(jarArray[i]);
 				InputStream input = jarFile.getInputStream(entry);
 				
-				Parser.parse(processer(input), jarArray[i]);
+				Parser.parse(processEntry(input), jarArray[i]);
 				
 			    jarFile.close();
 				i++;
