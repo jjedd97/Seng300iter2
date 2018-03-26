@@ -22,7 +22,7 @@ public class Main {
 		checkArgs(args);
 
 		Reader reader = new Reader();
-		reader.parseFiles(args);
+		reader.parseFiles();
 		
 		Parser.counter();
 	}

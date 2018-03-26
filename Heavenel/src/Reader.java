@@ -12,28 +12,18 @@ import java.util.jar.JarFile;
 
 public class Reader {
 	private File[] files = null;
-	public static ArrayList jarArray;
+	public static ArrayList jarList;
 	
-	public Reader() {
-		files = finder(Main.pathName);
+	public Reader() throws IOException {
+		files = finder();
 	}
 	
-	public File[] finder(String dirName) {
-		if (dirName.endsWith(".jar")) {
-			JarDescender jarSearch = new JarDescender(dirName);
-
-			try {
-				jarArray = jarSearch.addFile();
-				String jarString = String.join(", ", jarArray);
-				File jarFile = new File(jarString);
-				File[] jarList = new File[] {jarFile};
-				return jarList;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+	private File[] finder() throws IOException {
+		if (Main.pathName.endsWith(".jar")) 
+			jarList = JarDescender.addFile(Main.pathName);
+			
 		else {
-			File dir = new File(dirName);
+			File dir = new File(Main.pathName);
 			return dir.listFiles(new FilenameFilter() { 
 				public boolean accept(File dir, String filename) {
 					return filename.endsWith(".java");
@@ -56,18 +46,21 @@ public class Reader {
 		return src;
 	}
 	
-	public void parseFiles(String[] args) throws IOException {
+	public void parseFiles() throws IOException {
 	
-		if (args[0].endsWith(".jar")) {
+		if (Main.pathName.endsWith(".jar")) {
 			int i = 0;
-			String[] jayArray = new String[jarArray.size()];
-			jarArray.toArray(jayArray);
 			
-			while (i < jarArray.size()) {
-				JarFile jarFile = new JarFile(args[0]);
-				JarEntry entry = jarFile.getJarEntry(jayArray[i]);
+			String[] jarArray = new String[jarList.size()];
+			jarList.toArray(jarArray);
+			
+			while (i < jarList.size()) {
+				JarFile jarFile = new JarFile(Main.pathName);
+				JarEntry entry = jarFile.getJarEntry(jarArray[i]);
 				InputStream input = jarFile.getInputStream(entry);
-				Parser.parse(processer(input), jayArray[i]);
+				
+				Parser.parse(processer(input), jarArray[i]);
+				
 			    jarFile.close();
 				i++;
 			}
