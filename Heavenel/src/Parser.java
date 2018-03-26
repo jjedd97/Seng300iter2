@@ -29,7 +29,7 @@ public class Parser {
 			
 	}
 				  
-	public void parse(String source, File file) {
+	public static void parse(String source, String unitName) {
 		
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -45,7 +45,7 @@ public class Parser {
 	    
 	    String[] pathArray = {Main.pathName};
 		parser.setEnvironment(null, pathArray, null, true);
-		parser.setUnitName(file.getName());
+		parser.setUnitName(unitName);
 
 		final CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 		

@@ -11,11 +11,10 @@ public class Main {
 	public static void checkArgs(String[] args) {
 		try { 
 			pathName = args[0];
-			type = args[1];
 		}
 		
 		catch (java.lang.ArrayIndexOutOfBoundsException e){ 
-			 throw new IllegalStateException("Usage: 'PROGRAM' 'PATH' 'TYPE'");
+			 throw new IllegalStateException("Usage: 'PROGRAM'");
 		}
 	}
 
@@ -23,7 +22,7 @@ public class Main {
 		checkArgs(args);
 
 		Reader reader = new Reader();
-		reader.parseFiles();
+		reader.parseFiles(args);
 		
 		Parser.counter();
 	}
